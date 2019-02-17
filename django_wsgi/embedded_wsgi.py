@@ -31,7 +31,7 @@ __all__ = ("call_wsgi_app", "make_wsgi_view")
 def call_wsgi_app(wsgi_app, request, path_info):
     """
     Call the ``wsgi_app`` with ``request`` and return its response.
-    
+
     :param wsgi_app: The WSGI application to be run.
     :type wsgi_app: callable
     :param request: The Django request.
@@ -43,11 +43,11 @@ def call_wsgi_app(wsgi_app, request, path_info):
     :return: The response from the WSGI application, turned into a Django
         response.
     :rtype: :class:`django.http.HttpResponse`
-    
+
     """
     webob_request = request.webob
     new_request = webob_request.copy()
-    
+
     # Moving the portion of the path consumed by the current view, from the
     # PATH_INTO to the SCRIPT_NAME:
     if not request.path_info.endswith(path_info):
@@ -57,11 +57,11 @@ def call_wsgi_app(wsgi_app, request, path_info):
     consumed_path = request.path_info[:-len(path_info)]
     new_request.path_info = path_info
     new_request.script_name = webob_request.script_name + consumed_path
-    
+
     # If the user has been authenticated in Django, log him in the WSGI app:
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         new_request.remote_user = request.user.username
-    
+
     # Cleaning the routing_args, if any. The application should have its own
     # arguments, without relying on any arguments from a parent application:
     if "wsgiorg.routing_args" in request.environ:
@@ -69,13 +69,13 @@ def call_wsgi_app(wsgi_app, request, path_info):
     # And the same for the WebOb ad-hoc attributes:
     if "webob.adhoc_attrs" in request.environ:
         del new_request.environ['webob.adhoc_attrs']
-    
+
     # Calling the WSGI application and getting its response:
     (status_line, headers, body) = new_request.call_application(wsgi_app)
-    
+
     status_code_raw = status_line.split(" ", 1)[0]
     status_code = int(status_code_raw)
-    
+
     # Turning its response into a Django response:
     cookies = SimpleCookie()
     django_response = HttpResponse(body, status=status_code)
@@ -87,7 +87,7 @@ def call_wsgi_app(wsgi_app, request, path_info):
             cookies.load(value)
         else:
             django_response[header] = value
-    
+
     # Setting the cookies from Django:
     for (cookie_name, cookie) in cookies.items():
         cookie_attributes = {
@@ -110,13 +110,13 @@ def make_wsgi_view(wsgi_app):
     """
     Return a callable which can be used as a Django view powered by the
     ``wsgi_app``.
-    
+
     :param wsgi_app: The WSGI which will run the view.
     :return: The view callable.
-    
+
     """
-    
+
     def view(request, path_info):
         return call_wsgi_app(wsgi_app, request, path_info)
-    
+
     return view
