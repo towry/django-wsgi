@@ -49,9 +49,9 @@ setup(
     zip_safe=False,
     tests_require=["coverage", "nose"],
     install_requires=[
-        "Django >= 1.1",
-        "WebOb >= 1.5",
-        "six==1.10.0",
+        "Django >= 2.2.2",
+        "WebOb >= 1.8.5",
+        "six>=1.12.0",
         "setuptools",
     ],
     test_suite="nose.collector",
