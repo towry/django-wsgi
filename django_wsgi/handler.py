@@ -33,7 +33,7 @@ class DjangoWSGIRequest(DjangoRequest):
 
         :class:`webob.Request` instance for the WSGI environment behind the
         current Django request.
-    
+
     """
 
     def __init__(self, environ):
@@ -47,7 +47,7 @@ class DjangoWSGIRequest(DjangoRequest):
         self._stream.stream.seek(0)
 
         try:
-            return super(DjangoWSGIRequest, self).read()
+            return super(DjangoWSGIRequest, self).read(*args, **kwargs)
         finally:
             # Make environ['wsgi.input'] readable by WebOb
             self._stream.stream.seek(0)
@@ -56,7 +56,7 @@ class DjangoWSGIRequest(DjangoRequest):
 class DjangoApplication(DjangoWSGIHandler):
     """
     Django request handler which uses our enhanced WSGI request class.
-    
+
     """
 
     request_class = DjangoWSGIRequest
